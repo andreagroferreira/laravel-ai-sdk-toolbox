@@ -1,0 +1,61 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "andreagroferreira/laravel-ai-sdk-toolbox",
+    "description": "Short description of the package.",
+    "keywords": [
+        "laravel",
+        "andreagroferreira",
+        "laravel-ai-sdk-toolbox"
+    ],
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": "^8.4.0",
+        "illuminate/support": "^13.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.10.0",
+        "laravel/pint": "^1.29.1",
+        "orchestra/testbench": "^11.0",
+        "pestphp/pest": "^5.0",
+        "pestphp/pest-plugin-laravel": "^5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AndreAgroFerreira\\LaravelAiSdkToolbox\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AndreAgroFerreira\\LaravelAiSdkToolbox\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test:lint": "pint --test",
+        "test:types": "phpstan",
+        "test:unit": "pest",
+        "test": [
+            "@test:lint",
+            "@test:types",
+            "@test:unit"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AndreAgroFerreira\\LaravelAiSdkToolbox\\LaravelAiSdkToolboxServiceProvider"
+            ],
+            "aliases": {
+                "LaravelAiSdkToolbox": "AndreAgroFerreira\\LaravelAiSdkToolbox\\Facades\\LaravelAiSdkToolbox"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
