@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 jobs:
   update-packagist:
@@ -20,9 +21,26 @@ jobs:
       - name: Validate composer.json
         run: composer validate --strict
 
-      - name: Trigger Packagist update
+      - name: Check Packagist credentials
+        env:
+          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
+          PACKAGIST_API_TOKEN: ${{ secrets.PACKAGIST_API_TOKEN }}
         run: |
-          curl -X POST \
+          if [ -z "$PACKAGIST_USERNAME" ] || [ -z "$PACKAGIST_API_TOKEN" ]; then
+            echo "::error::Set the PACKAGIST_USERNAME and PACKAGIST_API_TOKEN repository secrets (from https://packagist.org/profile/edit)."
+            exit 1
+          fi
+
+      - name: Trigger Packagist update
+        env:
+          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
+          PACKAGIST_API_TOKEN: ${{ secrets.PACKAGIST_API_TOKEN }}
+        run: |
+          response=$(curl -sS -o /tmp/packagist-response.json -w "%{http_code}" \
+            -X POST \
             -H "Content-Type: application/json" \
             -d '{"repository":{"url":"https://packagist.org/packages/andreagroferreira/laravel-ai-sdk-toolbox"}}' \
-            "https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_API_TOKEN }}"
+            "https://packagist.org/api/update-package?username=${PACKAGIST_USERNAME}&apiToken=${PACKAGIST_API_TOKEN}")
+          cat /tmp/packagist-response.json
+          echo "HTTP status: $response"
+          test "$response" -ge 200 -a "$response" -lt 300
