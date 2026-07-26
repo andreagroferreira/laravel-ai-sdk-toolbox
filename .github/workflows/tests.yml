@@ -35,7 +35,7 @@ jobs:
           php-version: 8.4
           coverage: none
       - name: Cache PHPStan
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /tmp/phpstan
           key: ${{ runner.os }}-phpstan-${{ hashFiles('composer.json') }}
