@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use AndreAgroFerreira\AiSdkToolbox\Http\Controllers\CliToolController;
+use AndreAgroFerreira\AiSdkToolbox\Http\Controllers\KnowledgeController;
 use AndreAgroFerreira\AiSdkToolbox\Http\Controllers\PluginController;
 use AndreAgroFerreira\AiSdkToolbox\Http\Controllers\SkillController;
 use AndreAgroFerreira\AiSdkToolbox\Http\Controllers\VerifyController;
@@ -32,6 +33,13 @@ Route::middleware([AuthorizeAiToolbox::class])->group(function (): void {
     Route::delete('/plugins/{name}', [PluginController::class, 'destroy'])->name('ai-toolbox.plugins.destroy');
     Route::post('/plugins/{name}/enable', [PluginController::class, 'enable'])->name('ai-toolbox.plugins.enable');
     Route::post('/plugins/{name}/disable', [PluginController::class, 'disable'])->name('ai-toolbox.plugins.disable');
+
+    Route::get('/knowledge/documents', [KnowledgeController::class, 'documents'])->name('ai-toolbox.knowledge.documents');
+    Route::post('/knowledge/sync', [KnowledgeController::class, 'sync'])
+        ->middleware(sprintf('throttle:%s', config('ai-sdk-toolbox.http.throttle', '10,1')))
+        ->name('ai-toolbox.knowledge.sync');
+    Route::get('/knowledge/search', [KnowledgeController::class, 'search'])->name('ai-toolbox.knowledge.search');
+    Route::get('/knowledge/status', [KnowledgeController::class, 'status'])->name('ai-toolbox.knowledge.status');
 
     Route::get('/verify', VerifyController::class)->name('ai-toolbox.verify');
 });
