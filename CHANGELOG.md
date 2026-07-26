@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-26
+
+### Knowledge base
+
+- Unified ingestion pipeline: any Flysystem disk (local, S3, FTP) → extract (md/txt/html, PDF via `smalot/pdfparser`) → chunk (markdown-aware or fixed-size with overlap) → batched, cached embeddings via the AI SDK → pgvector store
+- Incremental `ai:kb-sync` with sha256 diffs, deletions, atomic chunk replacement, queued jobs (`--sync` for inline) and `ai:kb-status`
+- Isolated namespaces per source; documents tracked with status (`pending`/`synced`/`error`) and events (`KnowledgeDocumentSynced`, `KnowledgeSyncFailed`)
+- `KnowledgeSearch` agent tool with optional reranking (degrades gracefully without a reranking provider) and a fluent `Knowledge::namespace()->search()` API
+- `VectorStore` contract with a pgvector driver and an in-memory fake for tests; pgvector integration tests run in CI (PostgreSQL service, PHP 8.4/8.5 × prefer-stable/lowest)
+
 ## [0.1.0] - 2026-07-26
 
 First release. The Laravel AI SDK on steroids.

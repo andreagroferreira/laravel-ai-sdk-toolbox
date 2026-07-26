@@ -18,6 +18,8 @@ abstract class TestCase extends Orchestra
         File::delete(sys_get_temp_dir().'/ai-toolbox-tests.lock');
 
         app()->instance(SkillLock::class, new SkillLock(sys_get_temp_dir().'/ai-toolbox-tests.lock'));
+
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     protected function tearDown(): void
@@ -45,5 +47,6 @@ abstract class TestCase extends Orchestra
     protected function defineEnvironment($app): void
     {
         $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('a', 32)));
+        $app['config']->set('ai.caching.embeddings.store', 'array');
     }
 }

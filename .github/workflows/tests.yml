@@ -57,18 +57,40 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ai_toolbox_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       fail-fast: false
       matrix:
         php: ['8.4', '8.5']
         stability: [prefer-stable, prefer-lowest]
     name: PHP ${{ matrix.php }} — ${{ matrix.stability }}
+    env:
+      KB_TEST_PGSQL: '1'
+      KB_TEST_PGSQL_HOST: 127.0.0.1
+      KB_TEST_PGSQL_PORT: 5432
+      KB_TEST_PGSQL_DATABASE: ai_toolbox_test
+      KB_TEST_PGSQL_USERNAME: postgres
+      KB_TEST_PGSQL_PASSWORD: postgres
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+          extensions: pdo_pgsql, pgsql
       - name: Install dependencies
         run: composer update --no-interaction --prefer-dist --no-progress --${{ matrix.stability }}
       - run: vendor/bin/pest --colors=never

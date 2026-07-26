@@ -26,7 +26,13 @@
         "laravel/pint": "^1.29.1",
         "orchestra/testbench": "^11.0",
         "pestphp/pest": "^5.0",
-        "pestphp/pest-plugin-laravel": "^5.0"
+        "pestphp/pest-plugin-laravel": "^5.0",
+        "smalot/pdfparser": "^2.12"
+    },
+    "suggest": {
+        "smalot/pdfparser": "Required to extract text from PDF documents in knowledge sources (^2.12).",
+        "league/flysystem-aws-s3-v3": "Required to use S3 disks as knowledge sources (^3.0).",
+        "league/flysystem-ftp": "Required to use FTP disks as knowledge sources (^3.0)."
     },
     "autoload": {
         "psr-4": {

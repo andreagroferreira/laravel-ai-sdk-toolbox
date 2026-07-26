@@ -39,8 +39,43 @@ return [
         ],
     ],
 
-    'http' => [
+    'knowledge' => [
 
+        /*
+         * The vector store driver. "pgvector" uses the knowledge_chunks
+         * table with the native Laravel vector column (PostgreSQL only).
+         */
+        'store' => env('AI_TOOLBOX_KB_STORE', 'pgvector'),
+
+        'embeddings' => [
+            'provider' => env('AI_TOOLBOX_KB_EMBEDDINGS_PROVIDER'),
+            'model' => env('AI_TOOLBOX_KB_EMBEDDINGS_MODEL'),
+            'dimensions' => (int) env('AI_TOOLBOX_KB_EMBEDDINGS_DIMENSIONS', 1536),
+            'cache' => true,
+        ],
+
+        'chunking' => [
+            'size' => 1500,
+            'overlap' => 200,
+        ],
+
+        'sync' => [
+            'queue' => env('AI_TOOLBOX_KB_QUEUE', 'default'),
+            'batch' => 100,
+        ],
+
+        /*
+         * Knowledge sources keyed by name. Each source maps a filesystem
+         * disk + path prefix to an isolated namespace.
+         *
+         * Example:
+         * 'docs' => ['disk' => 's3', 'path' => 'kb/', 'namespace' => 'docs',
+         *            'chunker' => 'markdown', 'extensions' => ['md', 'txt', 'html', 'pdf']],
+         */
+        'sources' => [],
+    ],
+
+    'http' => [
         /*
          * The HTTP management layer is opt-in. Routes only respond when this
          * is enabled (the middleware answers 404 otherwise).
