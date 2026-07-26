@@ -27,7 +27,11 @@ beforeEach(function (): void {
         'sslmode' => 'prefer',
     ]);
 
-    Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--realpath' => true, '--path' => __DIR__.'/../../database/migrations']);
+    Illuminate\Support\Facades\Artisan::call('migrate', [
+        '--database' => 'pgsql',
+        '--path' => realpath(__DIR__.'/../../../database/migrations'),
+        '--realpath' => true,
+    ]);
 
     Embeddings::fake();
 });

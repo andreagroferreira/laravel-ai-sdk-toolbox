@@ -60,14 +60,19 @@ final class PgVectorStore implements VectorStore
     {
         $embedding = $this->embedQuery($query);
 
-        /** @var Collection<int, KnowledgeChunk> $chunks */
-        $chunks = KnowledgeChunk::query()
+        $query2 = KnowledgeChunk::query()
             ->where('namespace', $namespace)
+            ->select('*')
             ->selectVectorDistance('embedding', $embedding, as: 'distance')
-            ->whereVectorDistanceLessThan('embedding', $embedding, 1.0 - $options->minSimilarity)
             ->orderByVectorDistance('embedding', $embedding)
-            ->limit($options->limit)
-            ->get();
+            ->limit($options->limit);
+
+        if ($options->minSimilarity > 0.0) {
+            $query2->whereVectorDistanceLessThan('embedding', $embedding, 1.0 - $options->minSimilarity);
+        }
+
+        /** @var Collection<int, KnowledgeChunk> $chunks */
+        $chunks = $query2->get();
 
         $documents = KnowledgeDocument::query()
             ->whereIn('id', $chunks->pluck('document_id')->unique()->all())
