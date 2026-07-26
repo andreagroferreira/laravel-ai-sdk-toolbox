@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- HTTP endpoints for plugins: list, show, install (`POST /ai-toolbox/plugins/install`, throttled), remove, enable and disable — with the same authorization, events and safety model as the rest of the management layer
+
 ## [0.3.0] - 2026-07-26
 
 ### Plugins

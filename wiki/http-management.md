@@ -107,6 +107,12 @@ Without a callback, access is granted **only in the `local` environment**. The c
 | `GET` | `/ai-toolbox/cli-tools` | List CLIs with env status (set/missing — never values) |
 | `POST` | `/ai-toolbox/cli-tools/{name}/trust` | Promote CLI to trusted |
 | `DELETE` | `/ai-toolbox/cli-tools/{name}/trust` | Demote CLI |
+| `GET` | `/ai-toolbox/plugins` | List installed plugins (version, state, source) |
+| `GET` | `/ai-toolbox/plugins/{name}` | Show plugin manifest details |
+| `POST` | `/ai-toolbox/plugins/install` | Install a plugin: `{source, path?, disabled?}` |
+| `DELETE` | `/ai-toolbox/plugins/{name}` | Remove a plugin |
+| `POST` | `/ai-toolbox/plugins/{name}/enable` | Enable a plugin |
+| `POST` | `/ai-toolbox/plugins/{name}/disable` | Disable a plugin |
 | `GET` | `/ai-toolbox/verify` | Integrity report for skills + CLIs |
 
 ### Install response example

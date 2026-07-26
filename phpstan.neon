@@ -10,8 +10,9 @@ parameters:
 
     excludePaths:
         # Pest's $this HTTP helpers (getJson/postJson) are not analyzable;
-        # the file is covered by runtime feature tests.
+        # the files are covered by runtime feature tests.
         - tests/Feature/HttpApiTest.php
+        - tests/Feature/HttpPluginsTest.php
 
     level: max
 
