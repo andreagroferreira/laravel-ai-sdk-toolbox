@@ -15,7 +15,7 @@ final class SkillRegistry
     /**
      * @var array<string, string>
      */
-    private array $paths;
+    private array $runtimePaths = [];
 
     /**
      * @var array<string, array{source: string, file: string}>|null
@@ -30,20 +30,14 @@ final class SkillRegistry
     public function __construct(
         private readonly SkillParser $parser,
         private readonly Repository $config,
-        private readonly SkillLock $lock,
-    ) {
-        /** @var array<string, string> $paths */
-        $paths = $config->get('ai-sdk-toolbox.skills.paths', []);
-
-        $this->paths = $paths;
-    }
+    ) {}
 
     /**
      * Register an additional skills path at runtime (e.g. from a plugin).
      */
     public function addPath(string $source, string $path): void
     {
-        $this->paths[$source] = $path;
+        $this->runtimePaths[$source] = $path;
         $this->index = null;
     }
 
@@ -52,7 +46,10 @@ final class SkillRegistry
      */
     public function sources(): array
     {
-        return $this->paths + $this->composerPaths();
+        /** @var array<string, string> $configPaths */
+        $configPaths = $this->config->get('ai-sdk-toolbox.skills.paths', []);
+
+        return $configPaths + $this->runtimePaths + $this->composerPaths();
     }
 
     public function has(string $name): bool
@@ -128,7 +125,7 @@ final class SkillRegistry
 
     private function lockedTrust(string $name): ?Trust
     {
-        $locked = $this->lock->get($name);
+        $locked = app(SkillLock::class)->get($name);
         $trust = $locked['trust'] ?? null;
 
         return is_string($trust) ? Trust::tryFrom($trust) : null;

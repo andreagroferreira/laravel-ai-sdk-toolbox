@@ -75,6 +75,14 @@ return [
         'sources' => [],
     ],
 
+    'plugins' => [
+
+        /*
+         * Where third-party plugins are installed (ai:plugin-install).
+         */
+        'path' => storage_path('app/ai/plugins'),
+    ],
+
     'http' => [
         /*
          * The HTTP management layer is opt-in. Routes only respond when this

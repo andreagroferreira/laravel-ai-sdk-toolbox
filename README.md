@@ -26,6 +26,7 @@ We kept doing this work manually. So we packaged it — with the part nobody sho
 |---|---|
 | **Skills** | Install [Claude-format skills](https://agentskills.io) from paths, git URLs, `vendor/repo` shorthands or Composer packages, and apply them to any agent or sub-agent with one trait |
 | **Composite skills** | Skills that ship real PHP tools and middleware — capability packs, not just prompt fragments |
+| **Plugins** | Versioned bundles (skills + named agents + event listeners) with an enable/disable lifecycle and an AgentRegistry for dynamic sub-agent composition |
 | **Knowledge base** | Point at any filesystem disk (local, S3, FTP) and your agents search your documents semantically — incremental sync, pgvector, isolated namespaces, reranking |
 | **CLI tools** | Sources shipping `tools/clis/*.js` (marketing registries, SaaS integrations) become agent tools with **per-tool environment injection** — each CLI gets only the secrets it declared |
 | **Script execution** | `RunSkillScript` runs skill scripts with a scrubbed environment, path validation, timeouts and **human approval** for untrusted sources |
@@ -82,6 +83,7 @@ The README is the overview. The **wiki/ has a deep-dive per feature** with full 
 | [Getting Started](wiki/getting-started.md) | Installation, configuration, your first skilled agent |
 | [Skills](wiki/skills.md) | The skill format, registry, sources, commands, trust model |
 | [Composite Skills](wiki/composite-skills.md) | Providers, PHP tools, middleware, the composite gate |
+| [Plugins](wiki/plugins.md) | Manifest, lifecycle, named agents, listeners, Composer distribution |
 | [Knowledge Base](wiki/knowledge.md) | Sources, sync pipeline, chunking, pgvector, agent retrieval |
 | [Script Execution](wiki/script-execution.md) | `RunSkillScript`, executor guarantees, approvals, runtimes |
 | [CLI Tools](wiki/cli-tools.md) | `tools/clis`, env extraction & injection, `RunCliTool`, `ai:tool-list` |

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-26
+
+### Plugins
+
+- Versioned plugin bundles: skills + named agents + event listeners in one installable unit (`ai-plugin.json`, with the Claude `.claude-plugin/plugin.json` format also accepted)
+- Lifecycle with state in `ai-plugins.lock`: `ai:plugin-install` (path / git URL / `vendor/repo`), `ai:plugin-list`, `ai:plugin-enable`, `ai:plugin-disable`, `ai:plugin-remove` — with events (`PluginInstalled`, `PluginEnabled`, `PluginDisabled`, `PluginRemoved`)
+- Enabled plugins are wired at boot: skills join the registry as source `plugin:<name>`, listeners register against the AI SDK events, named agents register in the new `AgentRegistry` (`AiSdkToolbox::agents()->make('name', ...$args)` for dynamic sub-agent composition)
+- Composer distribution: packages declare `extra.laravel-ai.plugin` and are auto-registered at boot
+
 ## [0.2.0] - 2026-07-26
 
 ### Knowledge base

@@ -1,0 +1,12 @@
+{
+    "name": "memory-pack",
+    "version": "1.2.0",
+    "description": "Memory capabilities for agents: a memory skill, a named agent and a tool logger.",
+    "skills": "./skills",
+    "agents": {
+        "memory-agent": "AndreAgroFerreira\\AiSdkToolbox\\Tests\\Fixtures\\Classes\\MemoryPack\\MemoryAgent"
+    },
+    "listeners": {
+        "ToolInvoked": ["AndreAgroFerreira\\AiSdkToolbox\\Tests\\Fixtures\\Classes\\MemoryPack\\LogToolCalls"]
+    }
+}

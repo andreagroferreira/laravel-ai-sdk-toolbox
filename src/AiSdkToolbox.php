@@ -6,6 +6,8 @@ namespace AndreAgroFerreira\AiSdkToolbox;
 
 use AndreAgroFerreira\AiSdkToolbox\Management\CliToolManager;
 use AndreAgroFerreira\AiSdkToolbox\Management\SkillManager;
+use AndreAgroFerreira\AiSdkToolbox\Plugins\AgentRegistry;
+use AndreAgroFerreira\AiSdkToolbox\Plugins\PluginManager;
 use Closure;
 
 final class AiSdkToolbox
@@ -59,5 +61,15 @@ final class AiSdkToolbox
     public function cliTools(): CliToolManager
     {
         return app(CliToolManager::class);
+    }
+
+    public function plugins(): PluginManager
+    {
+        return app(PluginManager::class);
+    }
+
+    public function agents(): AgentRegistry
+    {
+        return app(AgentRegistry::class);
     }
 }
