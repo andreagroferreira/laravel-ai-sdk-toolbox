@@ -10,10 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          coverage: none
+
       - name: Validate composer.json
-        run: |
-          curl -sS https://getcomposer.org/installer | php
-          php composer.phar validate --strict --no-check-publish
+        run: composer validate --strict
 
       - name: Trigger Packagist update
         run: |
