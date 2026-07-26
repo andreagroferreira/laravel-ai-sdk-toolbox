@@ -1,17 +1,25 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "name": "andreagroferreira/laravel-ai-sdk-toolbox",
-    "description": "Short description of the package.",
+    "description": "The Laravel AI SDK on steroids — Claude-compatible skills, plugins and knowledge bases for your agents.",
     "keywords": [
         "laravel",
-        "andreagroferreira",
-        "laravel-ai-sdk-toolbox"
+        "ai",
+        "agents",
+        "skills",
+        "laravel-ai-sdk",
+        "andreagroferreira"
     ],
     "license": "MIT",
     "type": "library",
     "require": {
         "php": "^8.4.0",
-        "illuminate/support": "^13.0"
+        "illuminate/console": "^13.0",
+        "illuminate/filesystem": "^13.0",
+        "illuminate/process": "^13.0",
+        "illuminate/support": "^13.0",
+        "laravel/ai": "^0.10",
+        "symfony/yaml": "^8.0"
     },
     "require-dev": {
         "larastan/larastan": "^3.10.0",
@@ -22,12 +30,12 @@
     },
     "autoload": {
         "psr-4": {
-            "AndreAgroFerreira\\LaravelAiSdkToolbox\\": "src/"
+            "AndreAgroFerreira\\AiSdkToolbox\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "AndreAgroFerreira\\LaravelAiSdkToolbox\\Tests\\": "tests/"
+            "AndreAgroFerreira\\AiSdkToolbox\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -43,10 +51,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "AndreAgroFerreira\\LaravelAiSdkToolbox\\LaravelAiSdkToolboxServiceProvider"
+                "AndreAgroFerreira\\AiSdkToolbox\\AiSdkToolboxServiceProvider"
             ],
             "aliases": {
-                "LaravelAiSdkToolbox": "AndreAgroFerreira\\LaravelAiSdkToolbox\\Facades\\LaravelAiSdkToolbox"
+                "AiSdkToolbox": "AndreAgroFerreira\\AiSdkToolbox\\Facades\\AiSdkToolbox"
             }
         }
     },

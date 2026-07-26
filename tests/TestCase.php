@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace AndreAgroFerreira\LaravelAiSdkToolbox\Tests;
+namespace AndreAgroFerreira\AiSdkToolbox\Tests;
 
-use AndreAgroFerreira\LaravelAiSdkToolbox\LaravelAiSdkToolboxServiceProvider;
+use AndreAgroFerreira\AiSdkToolbox\AiSdkToolboxServiceProvider;
+use AndreAgroFerreira\AiSdkToolbox\Skills\Security\SkillLock;
+use Illuminate\Support\Facades\File;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -13,7 +15,16 @@ abstract class TestCase extends Orchestra
     {
         parent::setUp();
 
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        File::delete(sys_get_temp_dir().'/ai-toolbox-tests.lock');
+
+        app()->instance(SkillLock::class, new SkillLock(sys_get_temp_dir().'/ai-toolbox-tests.lock'));
+    }
+
+    protected function tearDown(): void
+    {
+        File::delete(sys_get_temp_dir().'/ai-toolbox-tests.lock');
+
+        parent::tearDown();
     }
 
     /**
@@ -23,7 +34,16 @@ abstract class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
-            LaravelAiSdkToolboxServiceProvider::class,
+            \Laravel\Ai\AiServiceProvider::class,
+            AiSdkToolboxServiceProvider::class,
         ];
+    }
+
+    /**
+     * @param  \Illuminate\Foundation\Application  $app
+     */
+    protected function defineEnvironment($app): void
+    {
+        $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
     }
 }

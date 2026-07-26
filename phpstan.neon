@@ -1,10 +1,17 @@
 includes:
     - vendor/larastan/larastan/extension.neon
+    - vendor/pestphp/pest/extension.neon
 
 parameters:
 
     paths:
         - src
+        - tests
+
+    excludePaths:
+        # Pest's $this HTTP helpers (getJson/postJson) are not analyzable;
+        # the file is covered by runtime feature tests.
+        - tests/Feature/HttpApiTest.php
 
     level: max
 

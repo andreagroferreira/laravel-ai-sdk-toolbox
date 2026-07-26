@@ -13,36 +13,51 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
+  pint:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    timeout-minutes: 5
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: 8.4
-          tools: composer:v2
           coverage: none
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: vendor/bin/pint --test
 
-      - name: Cache Composer Dependencies
+  phpstan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          coverage: none
+      - name: Cache PHPStan
         uses: actions/cache@v4
         with:
-          path: vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
+          path: /tmp/phpstan
+          key: ${{ runner.os }}-phpstan-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-phpstan-
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: vendor/bin/phpstan --no-progress
 
-      - name: Install Dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: Lint
-        run: vendor/bin/pint --test
-
-      - name: Static Analysis
-        run: vendor/bin/phpstan --no-progress
-
-      - name: Tests
-        run: vendor/bin/pest
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+        stability: [prefer-stable, prefer-lowest]
+    name: PHP ${{ matrix.php }} — ${{ matrix.stability }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Install dependencies
+        run: composer update --no-interaction --prefer-dist --no-progress --${{ matrix.stability }}
+      - run: vendor/bin/pest --colors=never

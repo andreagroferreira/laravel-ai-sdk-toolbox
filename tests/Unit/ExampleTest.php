@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use AndreAgroFerreira\LaravelAiSdkToolbox\LaravelAiSdkToolbox;
+use AndreAgroFerreira\AiSdkToolbox\AiSdkToolbox;
 
 it('exposes the current version', function (): void {
-    $package = new LaravelAiSdkToolbox;
+    $package = new AiSdkToolbox;
 
-    expect($package->version())->toBe(LaravelAiSdkToolbox::VERSION);
+    expect($package->version())->toBe(AiSdkToolbox::VERSION);
 });
