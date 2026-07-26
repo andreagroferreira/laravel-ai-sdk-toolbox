@@ -20,6 +20,7 @@ use AndreAgroFerreira\AiSdkToolbox\Console\SkillMakeCommand;
 use AndreAgroFerreira\AiSdkToolbox\Console\SkillRemoveCommand;
 use AndreAgroFerreira\AiSdkToolbox\Console\SkillShowCommand;
 use AndreAgroFerreira\AiSdkToolbox\Console\SkillTrustCommand;
+use AndreAgroFerreira\AiSdkToolbox\Console\SkillUpdateCommand;
 use AndreAgroFerreira\AiSdkToolbox\Console\SkillVerifyCommand;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\Extractors\ExtractorRegistry;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\Stores\PgVectorStore;
@@ -90,6 +91,7 @@ final class AiSdkToolboxServiceProvider extends ServiceProvider
                 SkillRemoveCommand::class,
                 SkillShowCommand::class,
                 SkillTrustCommand::class,
+                SkillUpdateCommand::class,
                 SkillVerifyCommand::class,
             ]);
         }

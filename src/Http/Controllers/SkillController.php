@@ -67,6 +67,30 @@ final class SkillController extends Controller
         return new JsonResponse(['name' => $name, 'removed' => true]);
     }
 
+    public function update(\Illuminate\Http\Request $request, SkillManager $manager, string $name): JsonResponse
+    {
+        $force = $request->boolean('force');
+
+        if ($force && ! config('ai-sdk-toolbox.http.allow_force', false)) {
+            return new JsonResponse(['message' => 'Force updates are not allowed over HTTP.'], 422);
+        }
+
+        try {
+            $result = $manager->update($name, $force, $request->boolean('accept_warnings'));
+        } catch (SkillInstallException|InvalidSkillException $exception) {
+            return new JsonResponse(['message' => $exception->getMessage()], 422);
+        }
+
+        return new JsonResponse([
+            'data' => [
+                'skill' => $this->serializeSkill($result->skill),
+                'previous_version' => $result->previousVersion,
+                'version' => $result->version,
+                'report' => $this->serializeReport($result->report),
+            ],
+        ]);
+    }
+
     public function audit(SkillManager $manager, string $name): JsonResponse
     {
         try {

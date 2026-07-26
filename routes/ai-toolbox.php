@@ -18,6 +18,9 @@ Route::middleware([AuthorizeAiToolbox::class])->group(function (): void {
     Route::get('/skills/{name}', [SkillController::class, 'show'])->name('ai-toolbox.skills.show');
     Route::delete('/skills/{name}', [SkillController::class, 'destroy'])->name('ai-toolbox.skills.destroy');
     Route::get('/skills/{name}/audit', [SkillController::class, 'audit'])->name('ai-toolbox.skills.audit');
+    Route::post('/skills/{name}/update', [SkillController::class, 'update'])
+        ->middleware(sprintf('throttle:%s', config('ai-sdk-toolbox.http.throttle', '10,1')))
+        ->name('ai-toolbox.skills.update');
     Route::post('/skills/{name}/trust', [SkillController::class, 'trust'])->name('ai-toolbox.skills.trust');
     Route::delete('/skills/{name}/trust', [SkillController::class, 'untrust'])->name('ai-toolbox.skills.untrust');
 

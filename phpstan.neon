@@ -14,6 +14,7 @@ parameters:
         - tests/Feature/HttpApiTest.php
         - tests/Feature/HttpPluginsTest.php
         - tests/Feature/HttpKnowledgeTest.php
+        - tests/Feature/SkillUpdateTest.php
 
     level: max
 

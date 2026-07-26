@@ -58,6 +58,16 @@ final class SkillInstallException extends RuntimeException
         return new self('Installation aborted.', 'aborted');
     }
 
+    public static function notInstalled(string $name): self
+    {
+        return new self(sprintf('The skill [%s] is not installed, so it cannot be updated.', $name), 'not-installed');
+    }
+
+    public static function sourceNotResolvable(string $name, string $source): self
+    {
+        return new self(sprintf('The skill [%s] cannot be updated: the source [%s] no longer resolves.', $name, $source), 'source-not-resolvable');
+    }
+
     public static function cloneFailed(string $source, string $output): self
     {
         return new self(sprintf('Failed to clone [%s]: %s', $source, mb_trim($output)), 'clone-failed');

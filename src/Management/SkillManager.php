@@ -9,6 +9,7 @@ use AndreAgroFerreira\AiSdkToolbox\Events\CliToolsInstalled;
 use AndreAgroFerreira\AiSdkToolbox\Events\SkillInstalled;
 use AndreAgroFerreira\AiSdkToolbox\Events\SkillTrustChanged;
 use AndreAgroFerreira\AiSdkToolbox\Events\SkillUninstalled;
+use AndreAgroFerreira\AiSdkToolbox\Events\SkillUpdated;
 use AndreAgroFerreira\AiSdkToolbox\Skills\InstallManyResult;
 use AndreAgroFerreira\AiSdkToolbox\Skills\InstallResult;
 use AndreAgroFerreira\AiSdkToolbox\Skills\Security\ScanReport;
@@ -18,6 +19,7 @@ use AndreAgroFerreira\AiSdkToolbox\Skills\Skill;
 use AndreAgroFerreira\AiSdkToolbox\Skills\SkillInstaller;
 use AndreAgroFerreira\AiSdkToolbox\Skills\SkillRegistry;
 use AndreAgroFerreira\AiSdkToolbox\Skills\Trust;
+use AndreAgroFerreira\AiSdkToolbox\Skills\UpdateResult;
 use Illuminate\Support\Collection;
 
 final class SkillManager
@@ -80,6 +82,18 @@ final class SkillManager
         $this->installer->uninstall($name);
 
         SkillUninstalled::dispatch($name);
+    }
+
+    /**
+     * Update an installed skill from its original source.
+     */
+    public function update(string $name, bool $force = false, bool $acceptWarnings = false): UpdateResult
+    {
+        $result = $this->installer->update($name, $force, fn (): bool => $acceptWarnings);
+
+        SkillUpdated::dispatch($result->skill, $result->previousVersion, $result->version);
+
+        return $result;
     }
 
     public function trust(string $name, bool $trusted): void

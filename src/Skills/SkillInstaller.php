@@ -100,6 +100,63 @@ final class SkillInstaller
     }
 
     /**
+     * Update an installed skill from its original source: re-resolve, re-scan,
+     * replace the files and refresh the lock entry (trust is preserved).
+     *
+     * @param  callable(ScanReport): bool|null  $confirm
+     *
+     * @throws InvalidSkillException
+     * @throws SkillInstallException
+     */
+    public function update(string $name, bool $force = false, ?callable $confirm = null): UpdateResult
+    {
+        $entry = $this->lock->get($name) ?? throw SkillInstallException::notInstalled($name);
+
+        $source = $entry['source'];
+        $previousVersion = $entry['version'] ?? null;
+        $previousTrust = isset($entry['trust']) ? Trust::tryFrom($entry['trust']) : null;
+
+        [$root, $version, $cleanup] = $this->resolveSourceRoot($source);
+
+        try {
+            $directory = $this->resolveSkillDirectoryForUpdate($root, $name);
+
+            $skill = $this->parser->parse($directory.DIRECTORY_SEPARATOR.'SKILL.md', $source, Trust::Untrusted, strictDirectory: false);
+            $report = $this->scanner->scan($skill);
+
+            if ($report->verdict() === Verdict::Blocked && ! $force) {
+                throw SkillInstallException::blocked($report);
+            }
+
+            if ($report->verdict() === Verdict::Warnings && $confirm !== null && ! $confirm($report)) {
+                throw SkillInstallException::aborted();
+            }
+
+            $destination = $this->installedPath().DIRECTORY_SEPARATOR.$name;
+
+            if (File::isDirectory($destination)) {
+                File::deleteDirectory($destination);
+            }
+
+            File::copyDirectory($directory, $destination);
+
+            $updated = $this->parser->parse($destination.DIRECTORY_SEPARATOR.'SKILL.md', $source, $previousTrust ?? Trust::Untrusted);
+
+            $this->lock->put($updated, $version, $previousTrust);
+
+            return new UpdateResult(
+                skill: $updated,
+                report: $report,
+                previousVersion: $previousVersion,
+                version: $version,
+                cliTools: $this->installCliTools($root, $source, $version),
+            );
+        } finally {
+            $cleanup();
+        }
+    }
+
+    /**
      * Remove a skill from the "installed" path and from the lock file.
      */
     public function uninstall(string $name): void
@@ -174,6 +231,25 @@ final class SkillInstaller
         $path = $this->config->get('ai-sdk-toolbox.cli_tools.path');
 
         return is_string($path) ? $path : storage_path('app/ai/tools');
+    }
+
+    private function resolveSkillDirectoryForUpdate(string $root, string $name): string
+    {
+        if (is_file($root.DIRECTORY_SEPARATOR.'SKILL.md')) {
+            return $root;
+        }
+
+        $direct = $root.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'SKILL.md';
+
+        if (is_file($direct)) {
+            return dirname($direct);
+        }
+
+        foreach (glob($root.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'SKILL.md') ?: [] as $file) {
+            return dirname($file);
+        }
+
+        throw SkillInstallException::sourceNotResolvable($name, $root);
     }
 
     private function sourceSlug(string $source): string
