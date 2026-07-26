@@ -43,9 +43,18 @@ return [
 
         /*
          * The vector store driver. "pgvector" uses the knowledge_chunks
-         * table with the native Laravel vector column (PostgreSQL only).
+         * table with the native Laravel vector column (PostgreSQL only);
+         * "qdrant" talks to a Qdrant server over its HTTP API.
          */
         'store' => env('AI_TOOLBOX_KB_STORE', 'pgvector'),
+
+        'stores' => [
+            'qdrant' => [
+                'url' => env('QDRANT_URL', 'http://localhost:6333'),
+                'api_key' => env('QDRANT_API_KEY'),
+                'collection' => env('QDRANT_COLLECTION', 'knowledge_chunks'),
+            ],
+        ],
 
         'embeddings' => [
             'provider' => env('AI_TOOLBOX_KB_EMBEDDINGS_PROVIDER'),

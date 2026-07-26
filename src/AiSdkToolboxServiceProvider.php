@@ -24,6 +24,7 @@ use AndreAgroFerreira\AiSdkToolbox\Console\SkillUpdateCommand;
 use AndreAgroFerreira\AiSdkToolbox\Console\SkillVerifyCommand;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\Extractors\ExtractorRegistry;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\Stores\PgVectorStore;
+use AndreAgroFerreira\AiSdkToolbox\Knowledge\Stores\QdrantStore;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\VectorStore;
 use AndreAgroFerreira\AiSdkToolbox\Plugins\AgentRegistry;
 use AndreAgroFerreira\AiSdkToolbox\Plugins\PluginManager;
@@ -115,6 +116,7 @@ final class AiSdkToolboxServiceProvider extends ServiceProvider
         $config = $this->app->make(Repository::class);
 
         return match ($config->get('ai-sdk-toolbox.knowledge.store', 'pgvector')) {
+            'qdrant' => new QdrantStore($config),
             default => new PgVectorStore($config),
         };
     }
