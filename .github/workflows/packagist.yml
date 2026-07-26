@@ -1,0 +1,23 @@
+name: packagist
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  update-packagist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate composer.json
+        run: |
+          curl -sS https://getcomposer.org/installer | php
+          php composer.phar validate --strict --no-check-publish
+
+      - name: Trigger Packagist update
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"repository":{"url":"https://packagist.org/packages/andreagroferreira/laravel-ai-sdk-toolbox"}}' \
+            "https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_API_TOKEN }}"
