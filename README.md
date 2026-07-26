@@ -9,6 +9,11 @@
 
 ---
 
+
+<p align="center">
+        <img src="/art/laravel-ai-sdk-toolbox.png" alt="Laravel AI SDK Toolbox" style="width:70%;">
+</p>
+
 ## Why this package exists
 
 The Laravel AI SDK gives you agents: instructions, tools, structured output, conversations. It's a brilliant foundation. But the first time you build something real with it, you run into the same walls we did:
