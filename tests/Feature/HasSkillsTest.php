@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use AndreAgroFerreira\AiSdkToolbox\Skills\Tools\RunSkillScript;
 use AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Agents\SkilledAgent;
-use AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Skills\Remember\RememberMiddleware;
-use AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Skills\Remember\SaveMemoryTool;
+use AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Classes\Remember\RememberMiddleware;
+use AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Classes\Remember\SaveMemoryTool;
 
 beforeEach(function (): void {
     config()->set('ai-sdk-toolbox.skills.paths', ['local' => __DIR__.'/../Fixtures/skills']);

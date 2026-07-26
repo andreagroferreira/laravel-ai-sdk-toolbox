@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Skills\Remember;
+namespace AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Classes\Remember;
 
 use Closure;
 use Laravel\Ai\Prompts\AgentPrompt;

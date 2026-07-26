@@ -27,7 +27,7 @@ it('parses a valid instruction-only skill', function (): void {
 it('parses the provider and keeps unknown frontmatter keys', function (): void {
     $skill = (new SkillParser)->parse(fixtureSkillPath('remember'));
 
-    expect($skill->provider)->toBe('AndreAgroFerreira\\AiSdkToolbox\\Tests\\Fixtures\\Skills\\Remember\\RememberProvider')
+    expect($skill->provider)->toBe('AndreAgroFerreira\\AiSdkToolbox\\Tests\\Fixtures\\Classes\\Remember\\RememberProvider')
         ->and($skill->hasProvider())->toBeTrue()
         ->and($skill->frontmatter['custom-key'])->toBe('this key is ignored by Claude but kept in the frontmatter bag');
 });
