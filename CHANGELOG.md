@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-26
+
+### Knowledge HTTP endpoints
+
+- `GET /ai-toolbox/knowledge/documents` (namespace/status filters), `POST /ai-toolbox/knowledge/sync` (throttled), `GET /ai-toolbox/knowledge/search`, `GET /ai-toolbox/knowledge/status` — the knowledge base is now fully manageable from Inertia, Livewire or any API client
+
+### Skill updates
+
+- `ai:skill-update {name}` / `ai:skill-update --all` and `POST /ai-toolbox/skills/{name}/update`: re-resolve the original source, re-scan (same gates as install), replace files, refresh hashes and git SHA in the lock — **trust is preserved** across updates
+- New `SkillUpdated` event for audit logs
+
+### Qdrant vector store
+
+- New `QdrantStore` driver (`knowledge.store: 'qdrant'`): zero extra dependencies (HTTP API), one collection with payload-filtered namespaces, atomic document replacement, score-based results with `minSimilarity`
+- Config via `knowledge.stores.qdrant` (`url`, `api_key`, `collection`); unit tests with HTTP fakes plus real integration tests in CI (qdrant service, PHP 8.4/8.5)
+
+### Plugin HTTP endpoints (0.3.1 backfill)
+
 - HTTP endpoints for plugins: list, show, install (`POST /ai-toolbox/plugins/install`, throttled), remove, enable and disable — with the same authorization, events and safety model as the rest of the management layer
 
 ## [0.3.0] - 2026-07-26

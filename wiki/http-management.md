@@ -102,6 +102,7 @@ Without a callback, access is granted **only in the `local` environment**. The c
 | `POST` | `/ai-toolbox/skills/install` | Install: `{source, path?, all?, accept_warnings?, force?}` |
 | `DELETE` | `/ai-toolbox/skills/{name}` | Remove a skill |
 | `GET` | `/ai-toolbox/skills/{name}/audit` | Security scan report |
+| `POST` | `/ai-toolbox/skills/{name}/update` | Update from the original source (trust preserved) |
 | `POST` | `/ai-toolbox/skills/{name}/trust` | Promote to trusted |
 | `DELETE` | `/ai-toolbox/skills/{name}/trust` | Demote to untrusted |
 | `GET` | `/ai-toolbox/cli-tools` | List CLIs with env status (set/missing — never values) |
@@ -113,6 +114,10 @@ Without a callback, access is granted **only in the `local` environment**. The c
 | `DELETE` | `/ai-toolbox/plugins/{name}` | Remove a plugin |
 | `POST` | `/ai-toolbox/plugins/{name}/enable` | Enable a plugin |
 | `POST` | `/ai-toolbox/plugins/{name}/disable` | Disable a plugin |
+| `GET` | `/ai-toolbox/knowledge/documents` | List knowledge documents (`?namespace=`, `?status=`) |
+| `POST` | `/ai-toolbox/knowledge/sync` | Sync sources (throttled): `{source?, inline?}` |
+| `GET` | `/ai-toolbox/knowledge/search` | Search: `?namespace=&query=&limit=` |
+| `GET` | `/ai-toolbox/knowledge/status` | Documents, chunks and errors per namespace |
 | `GET` | `/ai-toolbox/verify` | Integrity report for skills + CLIs |
 
 ### Install response example

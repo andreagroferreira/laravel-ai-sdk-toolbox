@@ -165,6 +165,15 @@ public function tools(): iterable
 }
 ```
 
+### Updating skills
+
+```bash
+php artisan ai:skill-update copywriting   # one skill
+php artisan ai:skill-update               # every installed skill
+```
+
+The updater re-resolves the original source (git URL, shorthand or path), re-runs the security scan with the same gates as install, replaces the files, and refreshes the lock (hashes + git SHA). **Trust is preserved** — a skill you promoted stays trusted. Available over HTTP too: `POST /ai-toolbox/skills/{name}/update`.
+
 ## The tools agents receive automatically
 
 | Tool | When | What it does |
@@ -182,6 +191,7 @@ public function tools(): iterable
 | `ai:skill-list` | Table of all registered skills (name, source, trust, provider, scripts, description) |
 | `ai:skill-show {name}` | Full details of one skill |
 | `ai:skill-remove {name}` | Remove an installed skill and its lock entry |
+| `ai:skill-update {name?}` | Update one (or all) installed skills from their original sources |
 | `ai:skill-audit {name}` | Re-run the security scanner |
 | `ai:skill-verify {name?}` | Verify file integrity against `ai-skills.lock` |
 | `ai:skill-trust {name} {--untrust}` | Promote/demote trust |

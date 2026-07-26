@@ -161,6 +161,29 @@ Every document and chunk lives in a **namespace**. Searches never cross namespac
 
 Defaults: `size: 1500` chars, `overlap: 200`. Tune via `knowledge.chunking`.
 
+## Vector store drivers
+
+| Driver | Config | Notes |
+|---|---|---|
+| `pgvector` (default) | `knowledge.store: 'pgvector'` | Native Laravel 13 vector column (PostgreSQL + HNSW), zero infra beyond Postgres |
+| `qdrant` | `knowledge.store: 'qdrant'` | [Qdrant](https://qdrant.tech) over its HTTP API — zero extra dependencies; one collection, namespaces via payload filters |
+
+```php
+// config/ai-sdk-toolbox.php
+'knowledge' => [
+    'store' => 'qdrant',
+    'stores' => [
+        'qdrant' => [
+            'url' => env('QDRANT_URL', 'http://localhost:6333'),
+            'api_key' => env('QDRANT_API_KEY'),
+            'collection' => 'knowledge_chunks',
+        ],
+    ],
+],
+```
+
+The collection is created automatically (vector size from `embeddings.dimensions`, cosine distance). The same `VectorStore` contract covers future drivers (Meilisearch, provider-hosted stores).
+
 ## Extending
 
 **Custom extractors** — implement `ContentExtractor` and register:
