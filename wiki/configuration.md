@@ -100,6 +100,28 @@ Everything below is the full reference of `config/ai-sdk-toolbox.php` with defau
 | `throttle` | `string` | `10,1` | Rate limit (`attempts,minutes`) for the install endpoint |
 | `allow_force` | `bool` | `false` | Allow `force: true` in install payloads (scan-BLOCKED skills) |
 
+## `knowledge.timeouts` — search timeouts
+
+```php
+'knowledge' => [
+    'timeouts' => [
+        'embeddings' => env('AI_TOOLBOX_KB_EMBEDDINGS_TIMEOUT', 120),
+        'store' => env('AI_TOOLBOX_KB_STORE_TIMEOUT', 120),
+        'reranking' => env('AI_TOOLBOX_KB_RERANK_TIMEOUT', 120),
+    ],
+],
+```
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `embeddings` | int | `120` | Seconds to wait for the query embedding |
+| `store` | int | `120` | Seconds to wait for the Qdrant search; pgvector follows your database connection |
+| `reranking` | int | `120` | Seconds to wait for reranking |
+
+A value that is not a positive integer falls back to 120. If you have a published config, add this block to its `knowledge` section: Laravel merges only the top level, so the new keys and env variables have no effect until you do.
+
+The shortest outer limit wins: your proxy, PHP-FPM's `request_terminate_timeout` and your queue worker's `--timeout`. On Linux, `max_execution_time` does not count time waiting on the network. See [Knowledge Base](knowledge.md#search-timeouts).
+
 ## Environment variables
 
 | Variable | Default | Maps to |
@@ -110,6 +132,9 @@ Everything below is the full reference of `config/ai-sdk-toolbox.php` with defau
 | `AI_TOOLBOX_PYTHON_BINARY` | `python3` | `scripts.runtimes.py` |
 | `AI_TOOLBOX_NODE_BINARY` | `node` | `scripts.runtimes.js/.mjs` |
 | `AI_TOOLBOX_CLI_TOOLS_ENABLED` | `true` | `cli_tools.enabled` |
+| `AI_TOOLBOX_KB_EMBEDDINGS_TIMEOUT` | `120` | `knowledge.timeouts.embeddings` |
+| `AI_TOOLBOX_KB_STORE_TIMEOUT` | `120` | `knowledge.timeouts.store` |
+| `AI_TOOLBOX_KB_RERANK_TIMEOUT` | `120` | `knowledge.timeouts.reranking` |
 | `AI_TOOLBOX_HTTP_ENABLED` | `false` | `http.enabled` |
 | `AI_TOOLBOX_HTTP_PREFIX` | `ai-toolbox` | `http.prefix` |
 | `AI_TOOLBOX_HTTP_ALLOW_FORCE` | `false` | `http.allow_force` |

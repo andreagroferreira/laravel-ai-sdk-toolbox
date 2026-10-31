@@ -7,11 +7,35 @@ on:
   workflow_dispatch:
 
 jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
+
   update-packagist:
+    needs: tests
+    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check the tag matches VERSION
+        if: github.event_name == 'push'
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if ! grep -qF "VERSION = '${version}'" src/AiSdkToolbox.php; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match AiSdkToolbox::VERSION in src/AiSdkToolbox.php."
+            exit 1
+          fi
+
+      - name: Check the tagged commit is on main
+        if: github.event_name == 'push'
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag ${GITHUB_REF_NAME} points to a commit that is not on main."
+            exit 1
+          fi
 
       - uses: shivammathur/setup-php@v2
         with:

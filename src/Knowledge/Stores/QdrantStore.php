@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace AndreAgroFerreira\AiSdkToolbox\Knowledge\Stores;
 
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\ChunkResult;
+use AndreAgroFerreira\AiSdkToolbox\Knowledge\QueryEmbedder;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\SearchOptions;
+use AndreAgroFerreira\AiSdkToolbox\Knowledge\SearchTimeouts;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\Stores\Exceptions\QdrantException;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\VectorStore;
 use Illuminate\Contracts\Config\Repository;
@@ -13,7 +15,6 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Laravel\Ai\Embeddings;
 
 /**
  * VectorStore backed by Qdrant (https://qdrant.tech) over its HTTP API.
@@ -78,8 +79,10 @@ final class QdrantStore implements VectorStore
     {
         $this->ensureCollection();
 
-        $response = $this->client()->post($this->collectionUrl('/points/search'), [
-            'vector' => $this->embedQuery($query),
+        $vector = (new QueryEmbedder($this->config))->embed($query, $options->timeout);
+
+        $response = $this->client()->timeout(SearchTimeouts::resolve('store', $options->timeout))->post($this->collectionUrl('/points/search'), [
+            'vector' => $vector,
             'limit' => $options->limit,
             'with_payload' => true,
             'filter' => ['must' => [$this->match('namespace', $namespace)]],
@@ -174,24 +177,6 @@ final class QdrantStore implements VectorStore
     private function match(string $key, int|string $value): array
     {
         return ['key' => $key, 'match' => ['value' => $value]];
-    }
-
-    /**
-     * @return array<int, float>
-     */
-    private function embedQuery(string $query): array
-    {
-        /** @var array<string, mixed> $config */
-        $config = $this->config->get('ai-sdk-toolbox.knowledge.embeddings', []);
-
-        $response = Embeddings::for([$query])
-            ->cache()
-            ->generate(
-                is_string($config['provider'] ?? null) ? $config['provider'] : null,
-                is_string($config['model'] ?? null) ? $config['model'] : null,
-            );
-
-        return array_values($response->embeddings[0]);
     }
 
     private function collectionUrl(string $suffix = ''): string

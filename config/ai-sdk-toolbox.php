@@ -63,6 +63,18 @@ return [
             'cache' => true,
         ],
 
+        /*
+         * Seconds a knowledge search may wait at each stage. Anything that is
+         * not a positive integer falls back to 120. The real ceilings are your
+         * proxy, PHP-FPM's request_terminate_timeout and the queue worker's
+         * timeout; on Linux, max_execution_time does not count network waits.
+         */
+        'timeouts' => [
+            'embeddings' => env('AI_TOOLBOX_KB_EMBEDDINGS_TIMEOUT', 120),
+            'store' => env('AI_TOOLBOX_KB_STORE_TIMEOUT', 120),
+            'reranking' => env('AI_TOOLBOX_KB_RERANK_TIMEOUT', 120),
+        ],
+
         'chunking' => [
             'size' => 1500,
             'overlap' => 200,
