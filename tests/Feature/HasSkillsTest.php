@@ -6,10 +6,14 @@ use AndreAgroFerreira\AiSdkToolbox\Skills\Tools\RunSkillScript;
 use AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Agents\SkilledAgent;
 use AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Classes\Remember\RememberMiddleware;
 use AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Classes\Remember\SaveMemoryTool;
+use Illuminate\Support\Facades\Http;
+use Laravel\Ai\PendingStep;
 
 beforeEach(function (): void {
     config()->set('ai-sdk-toolbox.skills.paths', ['local' => __DIR__.'/../Fixtures/skills']);
     config()->set('ai-sdk-toolbox.skills.trust.sources', ['local' => 'trusted']);
+
+    RememberMiddleware::$steps = [];
 });
 
 /**
@@ -81,4 +85,44 @@ it('does not add the RunSkillScript tool when scripts are disabled', function ()
     config()->set('ai-sdk-toolbox.scripts.enabled', false);
 
     expect(collect(agentTools(new SkilledAgent(['backup'])))->contains(fn ($tool): bool => $tool instanceof RunSkillScript))->toBeFalse();
+});
+
+it('runs composite skill middleware in the loop and hands it the pending step', function (): void {
+    SkilledAgent::fake(['ok']);
+
+    expect((new SkilledAgent)->prompt('hi')->text)->toBe('ok')
+        ->and(RememberMiddleware::$steps)->toHaveCount(1)
+        ->and(RememberMiddleware::$steps[0])->toBeInstanceOf(PendingStep::class);
+});
+
+it('runs composite skill middleware once per generation step', function (): void {
+    config()->set('ai.providers.anthropic.key', 'test-key');
+
+    Http::fake([
+        'api.anthropic.com/*' => Http::sequence([
+            Http::response([
+                'id' => 'msg_1',
+                'type' => 'message',
+                'role' => 'assistant',
+                'model' => 'claude-sonnet-4-6',
+                'content' => [['type' => 'tool_use', 'id' => 'call-1', 'name' => 'SaveMemoryTool', 'input' => ['fact' => 'x']]],
+                'stop_reason' => 'tool_use',
+                'usage' => ['input_tokens' => 1, 'output_tokens' => 1],
+            ]),
+            Http::response([
+                'id' => 'msg_2',
+                'type' => 'message',
+                'role' => 'assistant',
+                'model' => 'claude-sonnet-4-6',
+                'content' => [['type' => 'text', 'text' => 'done']],
+                'stop_reason' => 'end_turn',
+                'usage' => ['input_tokens' => 1, 'output_tokens' => 1],
+            ]),
+        ]),
+    ]);
+
+    $response = (new SkilledAgent)->prompt('remember x', provider: 'anthropic');
+
+    expect($response->text)->toBe('done')
+        ->and(RememberMiddleware::$steps)->toHaveCount(2);
 });

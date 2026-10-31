@@ -6,7 +6,7 @@ Markdown-only skills change how an agent *talks*. Composite skills change what a
 
 ## Why composite skills exist
 
-The Claude skill format is intentionally code-free: `SKILL.md` plus resources. That's perfect for prompt-level behavior, but agents frequently need executable capabilities that belong with the skill — a "remember" skill needs a `SaveMemory` tool, a "project-info" skill needs a tool that reads the app's metadata, a "logging" skill needs middleware that records every prompt.
+The Claude skill format is intentionally code-free: `SKILL.md` plus resources. That's perfect for prompt-level behavior, but agents frequently need executable capabilities that belong with the skill — a "remember" skill needs a `SaveMemory` tool, a "project-info" skill needs a tool that reads the app's metadata, a "logging" skill needs middleware that records every generation step.
 
 Composite skills close that gap **without breaking compatibility**: the `provider` frontmatter key is ignored by Claude, but activates PHP capabilities in the toolbox.
 
@@ -51,7 +51,7 @@ final class ProjectInfoProvider implements ProvidesSkillCapabilities
      */
     public function middleware(): array
     {
-        return [new PromptLogger];
+        return [new GenerationStepLogger];
     }
 }
 ```
@@ -83,7 +83,25 @@ final class ProjectInfoTool implements Tool
 }
 ```
 
-When an agent applies `project-info`, `withSkillTools()` merges `ProjectInfoTool` into its tools, and `withSkillMiddleware()` merges `PromptLogger`.
+With `laravel/ai` ^1.0, middleware receives a `Laravel\Ai\PendingStep` and runs once per generation step, so a run with a tool call and a final reply invokes it twice. Paid calls and external writes inside middleware repeat on every step:
+
+```php
+use Closure;
+use Illuminate\Support\Facades\Log;
+use Laravel\Ai\PendingStep;
+
+final class GenerationStepLogger
+{
+    public function handle(PendingStep $step, Closure $next): mixed
+    {
+        Log::info('Agent generation step', ['first' => $step->isFirstStep()]);
+
+        return $next($step);
+    }
+}
+```
+
+When an agent applies `project-info`, `withSkillTools()` merges `ProjectInfoTool` into its tools, and `withSkillMiddleware()` merges `GenerationStepLogger`.
 
 ## The composite gate: trust controls code
 

@@ -115,6 +115,8 @@ $response->pendingApprovals; // id, tool, arguments, reason
 );
 ```
 
+Passing `as: $user` does not limit the resume: your application must authorize who resumes a conversation first. See [Script Execution](script-execution.md#human-approval).
+
 Modes: `untrusted` (default), `always`, `never` — see [Script Execution](script-execution.md).
 
 ## Layer 6 — HTTP surface rules
@@ -136,4 +138,5 @@ The [HTTP management layer](http-management.md) adds its own constraints:
 4. Commit `ai-skills.lock` and review changes in PRs
 5. Run `ai:skill-verify` in CI or on a schedule
 6. Promote skills/CLIs to trusted only after reading them
-7. Report vulnerabilities privately — see [SECURITY.md](../.github/SECURITY.md)
+7. Authorize who resumes a paused approval before passing decisions to the agent
+8. Report vulnerabilities privately — see [SECURITY.md](../.github/SECURITY.md)

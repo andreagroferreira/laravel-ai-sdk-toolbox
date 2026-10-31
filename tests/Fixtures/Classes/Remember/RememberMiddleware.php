@@ -5,12 +5,19 @@ declare(strict_types=1);
 namespace AndreAgroFerreira\AiSdkToolbox\Tests\Fixtures\Classes\Remember;
 
 use Closure;
-use Laravel\Ai\Prompts\AgentPrompt;
+use Laravel\Ai\PendingStep;
 
 final class RememberMiddleware
 {
-    public function handle(AgentPrompt $prompt, Closure $next): mixed
+    /**
+     * @var array<int, PendingStep>
+     */
+    public static array $steps = [];
+
+    public function handle(PendingStep $step, Closure $next): mixed
     {
-        return $next($prompt);
+        self::$steps[] = $step;
+
+        return $next($step);
     }
 }

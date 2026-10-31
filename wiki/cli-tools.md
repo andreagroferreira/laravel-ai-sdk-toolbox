@@ -86,6 +86,8 @@ AiSdkToolbox::cliTools()->trust('ga4', true);
 // or via HTTP: POST /ai-toolbox/cli-tools/ga4/trust
 ```
 
+Your application must authorize who resumes a paused approval: the same rules as [Script Execution](script-execution.md#human-approval) apply, and an approved CLI runs with its declared secrets.
+
 ## Configuration
 
 ```php
