@@ -7,12 +7,12 @@ namespace AndreAgroFerreira\AiSdkToolbox\Knowledge\Stores;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\ChunkResult;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\Models\KnowledgeChunk;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\Models\KnowledgeDocument;
+use AndreAgroFerreira\AiSdkToolbox\Knowledge\QueryEmbedder;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\SearchOptions;
 use AndreAgroFerreira\AiSdkToolbox\Knowledge\VectorStore;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Laravel\Ai\Embeddings;
 
 final class PgVectorStore implements VectorStore
 {
@@ -58,7 +58,7 @@ final class PgVectorStore implements VectorStore
      */
     public function search(string $namespace, string $query, SearchOptions $options): Collection
     {
-        $embedding = $this->embedQuery($query);
+        $embedding = (new QueryEmbedder($this->config))->embed($query, $options->timeout);
 
         $query2 = KnowledgeChunk::query()
             ->where('namespace', $namespace)
@@ -95,23 +95,5 @@ final class PgVectorStore implements VectorStore
     public function purge(string $namespace): void
     {
         KnowledgeChunk::query()->where('namespace', $namespace)->delete();
-    }
-
-    /**
-     * @return array<int, float>
-     */
-    private function embedQuery(string $query): array
-    {
-        /** @var array<string, mixed> $config */
-        $config = $this->config->get('ai-sdk-toolbox.knowledge.embeddings', []);
-
-        $response = Embeddings::for([$query])
-            ->cache()
-            ->generate(
-                is_string($config['provider'] ?? null) ? $config['provider'] : null,
-                is_string($config['model'] ?? null) ? $config['model'] : null,
-            );
-
-        return array_values($response->embeddings[0]);
     }
 }

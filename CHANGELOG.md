@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-31
+
+### Added
+
+- Knowledge search timeouts: `knowledge.timeouts.embeddings`, `.store` and `.reranking`, set by `AI_TOOLBOX_KB_EMBEDDINGS_TIMEOUT`, `AI_TOOLBOX_KB_STORE_TIMEOUT` and `AI_TOOLBOX_KB_RERANK_TIMEOUT`. `Knowledge::search(timeout: 600)` and `new KnowledgeSearch(timeout: 600)` set all three for one search.
+
+### Changed
+
+- Each search stage now waits up to 120 seconds by default instead of 30, so a search can hold a worker for about 6 minutes unless a proxy, PHP-FPM's `request_terminate_timeout` or the queue worker's timeout ends it first. On Linux, `max_execution_time` does not count network waits. Keep `AI_TOOLBOX_KB_RERANK_TIMEOUT` below those limits, or a stalled reranker ends the request before it can fall back.
+
+### Upgrading
+
+- If you have a published config, add the `timeouts` block to its `knowledge` section. Laravel merges only the top level, so otherwise the env variables have no effect and every stage stays at 120 seconds. See [Configuration](wiki/configuration.md).
+
+### Fixed
+
+- A failed reranking now logs a warning with the namespace and exception class, and still returns the results in vector order. The log leaves out the query and the exception message, which can repeat it.
+- The 0.5.0 upgrade steps now have pending approvals resolved before the maintenance window; they listed that after stopping writes.
+
+### Internal
+
+- `packagist.yml` calls the Packagist update only after `tests.yml` passes, with the tag equal to `AiSdkToolbox::VERSION` and the commit on `main`. A manual dispatch runs the update only from `main`. A rejected tag stays in the repository, where a later update can import it, so delete it.
+
 ## [0.5.0] - 2026-10-31
 
 ### Changed
@@ -19,8 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Composite skill middleware must accept a `Laravel\Ai\PendingStep` instead of an `AgentPrompt`, or it throws a `TypeError` at runtime. This also applies to third-party skills. It now runs once per generation step instead of once per run: paid calls, external writes and prompt changes inside middleware repeat on every step with no error.
 - Your application must authorize who resumes a paused approval: the SDK does not scope the lookup to a participant. See [Script Execution](wiki/script-execution.md#human-approval).
 - `laravel/ai` 1.x conflicts with `laravel/mcp` below 1.0. Update it. `laravel/boost` 2.4.8 pins `laravel/mcp` below 1.0 and blocks the update; `laravel/boost` ^2.10 resolves with it.
-- `laravel/ai` 1.x replaces columns on the conversation tables, so apps using `RemembersConversations` need a maintenance window: the backfill needs `laravel/ai` 1.x installed, and code still on 0.x stops working once the old columns are gone. In that window, stop writes, resolve or abandon pending approvals, back up the conversation tables, install this version, run the backfill migration from the [SDK upgrade guide](https://github.com/laravel/ai/blob/1.x/UPGRADE.md), then bring the app back. The guide's migration has no `down()`, so going back to v0.4.x means restoring that backup and losing conversations written since.
-- Reranking in knowledge search now uses the SDK's 30-second default timeout, which the SDK guide says can affect Bedrock. A timeout returns the results unranked, with no log.
+- `laravel/ai` 1.x replaces columns on the conversation tables, so apps using `RemembersConversations` need a maintenance window: the backfill needs `laravel/ai` 1.x installed, and code still on 0.x stops working once the old columns are gone. First resolve or abandon pending approvals, because resuming one writes to these tables. Then, in the window, stop writes, abandon any approval that appeared since, back up the conversation tables, install this version, run the backfill migration from the [SDK upgrade guide](https://github.com/laravel/ai/blob/1.x/UPGRADE.md), then bring the app back. The guide's migration has no `down()`, so going back to v0.4.x means restoring that backup and losing conversations written since.
+- Reranking in knowledge search now uses the SDK's 30-second default timeout, which the SDK guide says can affect Bedrock. A timeout returns the results unranked, with no log. Both change in 0.5.1.
 
 ### Tests
 

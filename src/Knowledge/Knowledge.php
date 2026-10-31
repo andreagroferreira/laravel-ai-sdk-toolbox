@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AndreAgroFerreira\AiSdkToolbox\Knowledge;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Laravel\Ai\Reranking;
 use Throwable;
 
@@ -25,11 +26,12 @@ final class Knowledge
      *
      * @return Collection<int, ChunkResult>
      */
-    public function search(string $query, int $limit = 8, float $minSimilarity = 0.0, bool $rerank = false): Collection
+    public function search(string $query, int $limit = 8, float $minSimilarity = 0.0, bool $rerank = false, ?int $timeout = null): Collection
     {
         $options = new SearchOptions(
             limit: $rerank ? $limit * 3 : $limit,
             minSimilarity: $minSimilarity,
+            timeout: $timeout,
         );
 
         $results = $this->store->search($this->namespace, $query, $options);
@@ -38,20 +40,26 @@ final class Knowledge
             return $results;
         }
 
-        return $this->rerank($query, $results)->take($limit)->values();
+        return $this->rerank($query, $results, $timeout)->take($limit)->values();
     }
 
     /**
      * @param  Collection<int, ChunkResult>  $results
      * @return Collection<int, ChunkResult>
      */
-    private function rerank(string $query, Collection $results): Collection
+    private function rerank(string $query, Collection $results, ?int $timeout): Collection
     {
         try {
             $response = Reranking::of($results->map->content->values())
                 ->limit($results->count())
+                ->timeout(SearchTimeouts::resolve('reranking', $timeout))
                 ->rerank($query);
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            Log::warning('Knowledge reranking failed; returning the results in vector order.', [
+                'namespace' => $this->namespace,
+                'exception' => $throwable::class,
+            ]);
+
             return $results;
         }
 

@@ -18,6 +18,7 @@ final class KnowledgeSearch implements Tool
         private readonly float $minSimilarity = 0.0,
         private readonly bool $rerank = false,
         private readonly ?string $description = null,
+        private readonly ?int $timeout = null,
     ) {}
 
     public function description(): string
@@ -51,6 +52,7 @@ final class KnowledgeSearch implements Tool
             limit: $this->limit,
             minSimilarity: $this->minSimilarity,
             rerank: $this->rerank,
+            timeout: $this->timeout,
         );
 
         if ($results->isEmpty()) {

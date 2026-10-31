@@ -125,7 +125,33 @@ Refunds are allowed within 30 days of purchase...
 Digital goods are not refundable after download...
 ```
 
-> **Reranking** (`rerank: true`) over-fetches 3× and reorders with the SDK's `Reranking` (Cohere, Jina or VoyageAI). Without a configured reranking provider it degrades silently to plain vector search.
+> **Reranking** (`rerank: true`) over-fetches 3× and reorders with the SDK's `Reranking` (Cohere, Jina or VoyageAI). Without a configured reranking provider, or when reranking fails, it logs a warning and returns plain vector results (see [Search timeouts](#search-timeouts)).
+
+## Search timeouts
+
+A search waits in up to 3 stages, up to 120 seconds each by default:
+
+| Stage | Config | Env |
+|---|---|---|
+| Query embedding | `knowledge.timeouts.embeddings` | `AI_TOOLBOX_KB_EMBEDDINGS_TIMEOUT` |
+| Qdrant search (pgvector queries follow your database connection) | `knowledge.timeouts.store` | `AI_TOOLBOX_KB_STORE_TIMEOUT` |
+| Reranking | `knowledge.timeouts.reranking` | `AI_TOOLBOX_KB_RERANK_TIMEOUT` |
+
+To wait longer for one search, pass `timeout`, which applies to all three stages:
+
+```php
+Knowledge::namespace('legal')->search('...', rerank: true, timeout: 600);
+
+new KnowledgeSearch(namespace: 'legal', rerank: true, timeout: 600);
+```
+
+A value that is not a positive integer falls back to 120. The HTTP search endpoint takes no timeout, so a request cannot choose how long it holds a worker. Qdrant also checks its collection before each search, using the HTTP client's 30-second default.
+
+The shortest outer limit wins: your proxy, PHP-FPM's `request_terminate_timeout` and your queue worker's `--timeout`. On Linux, PHP's `max_execution_time` does not count time waiting on the network, so it will not end these waits. Run long searches in a queued job with a worker timeout above them, or the CLI.
+
+An embedding or store timeout throws. A reranking failure logs a warning and returns the results in vector order, but only if it fails inside the outer limits: keep `AI_TOOLBOX_KB_RERANK_TIMEOUT` below them, or a stalled reranker ends the request before the fallback. Embeddings during knowledge sync do not use these values.
+
+If you have a published config, add the `timeouts` block to its `knowledge` section: see [Configuration](configuration.md).
 
 ## Searching from PHP
 
@@ -192,7 +218,7 @@ The collection is created automatically (vector size from `embeddings.dimensions
 app(ExtractorRegistry::class)->register(new DocxExtractor);
 ```
 
-**Custom vector stores** — the `VectorStore` contract (upsert / deleteDocument / search / purge) is the seam for Qdrant, Meilisearch or provider-hosted stores:
+**Custom vector stores** — honour `$options->timeout` in `search()` when it is set. The `VectorStore` contract (upsert / deleteDocument / search / purge) is the seam for Qdrant, Meilisearch or provider-hosted stores:
 
 ```php
 $this->app->singleton(VectorStore::class, fn () => new QdrantStore(...));
