@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-31
+
+### Changed
+
+- **Breaking:** requires `laravel/ai` ^1.0. Projects on `laravel/ai` 0.x stay on v0.4.x.
+- `AiSdkToolbox::VERSION` now matches the released version; it had stayed at `0.1.0`.
+
+### Upgrading
+
+- Composite skill middleware must accept a `Laravel\Ai\PendingStep` instead of an `AgentPrompt`, or it throws a `TypeError` at runtime. This also applies to third-party skills. It now runs once per generation step instead of once per run: paid calls, external writes and prompt changes inside middleware repeat on every step with no error.
+- Your application must authorize who resumes a paused approval: the SDK does not scope the lookup to a participant. See [Script Execution](wiki/script-execution.md#human-approval).
+- `laravel/ai` 1.x conflicts with `laravel/mcp` below 1.0. Update it. `laravel/boost` 2.4.8 pins `laravel/mcp` below 1.0 and blocks the update; `laravel/boost` ^2.10 resolves with it.
+- `laravel/ai` 1.x replaces columns on the conversation tables, so apps using `RemembersConversations` need a maintenance window: the backfill needs `laravel/ai` 1.x installed, and code still on 0.x stops working once the old columns are gone. In that window, stop writes, resolve or abandon pending approvals, back up the conversation tables, install this version, run the backfill migration from the [SDK upgrade guide](https://github.com/laravel/ai/blob/1.x/UPGRADE.md), then bring the app back. The guide's migration has no `down()`, so going back to v0.4.x means restoring that backup and losing conversations written since.
+- Reranking in knowledge search now uses the SDK's 30-second default timeout, which the SDK guide says can affect Bedrock. A timeout returns the results unranked, with no log.
+
+### Tests
+
+- Approval pause, approve, reject and invalid resume are covered through the SDK's generation loop for `RunSkillScript` and `RunCliTool`.
+
 ## [0.4.0] - 2026-07-26
 
 ### Knowledge HTTP endpoints

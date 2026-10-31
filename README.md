@@ -32,7 +32,7 @@ We kept doing this work manually. So we packaged it — with the part nobody sho
 | **Skills** | Install [Claude-format skills](https://agentskills.io) from paths, git URLs, `vendor/repo` shorthands or Composer packages, and apply them to any agent or sub-agent with one trait |
 | **Composite skills** | Skills that ship real PHP tools and middleware — capability packs, not just prompt fragments |
 | **Plugins** | Versioned bundles (skills + named agents + event listeners) with an enable/disable lifecycle and an AgentRegistry for dynamic sub-agent composition |
-| **Knowledge base** | Point at any filesystem disk (local, S3, FTP) and your agents search your documents semantically — incremental sync, pgvector, isolated namespaces, reranking |
+| **Knowledge base** | Point at any filesystem disk (local, S3, FTP) and your agents search your documents semantically — incremental sync, pgvector or Qdrant, isolated namespaces, reranking |
 | **CLI tools** | Sources shipping `tools/clis/*.js` (marketing registries, SaaS integrations) become agent tools with **per-tool environment injection** — each CLI gets only the secrets it declared |
 | **Script execution** | `RunSkillScript` runs skill scripts with a scrubbed environment, path validation, timeouts and **human approval** for untrusted sources |
 | **Security-first** | Trust levels, an install-time static scanner, an integrity lockfile, and trust promotion commands |
@@ -100,9 +100,13 @@ The README is the overview. The **wiki/ has a deep-dive per feature** with full 
 
 | Component | Required | Notes |
 |---|---|---|
-| PHP 8.4+, Laravel 13+, `laravel/ai` ^0.10 | yes | — |
+| PHP 8.4+, Laravel 13+, `laravel/ai` ^1.0 | yes | — |
 | `proc_open` enabled | only for scripts & CLI tools | — |
 | `python3` / `node` | only if you use them | same on dev and production |
+
+## Upgrading from 0.4
+
+v0.5.0 requires `laravel/ai` ^1.0. Composite skill middleware must accept a `PendingStep` and now runs once per generation step, and your application must authorize who resumes a paused approval. See the [Changelog](CHANGELOG.md) for every step.
 
 ## A note on trust
 

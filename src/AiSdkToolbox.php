@@ -12,7 +12,7 @@ use Closure;
 
 final class AiSdkToolbox
 {
-    public const string VERSION = '0.1.0';
+    public const string VERSION = '0.5.0';
 
     /**
      * @var (Closure(mixed): bool)|null

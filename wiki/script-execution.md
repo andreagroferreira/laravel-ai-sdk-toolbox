@@ -86,6 +86,16 @@ if ($response->hasPendingApprovals()) {
 
 > **Requirement:** approval flows need a `Conversational` agent (e.g. with `RemembersConversations`) so the paused call can be resumed after the human decides.
 
+Resume the run with the decisions, keyed by tool call ID:
+
+```php
+use Laravel\Ai\Approvals\Decisions;
+
+$agent->continue($conversationId, $user)->prompt(Decisions::from([$approval->id => true]));
+```
+
+> **Security:** this package ships no resume endpoint, and with `laravel/ai` ^1.0 the SDK does not scope the paused turn to a participant, even when you pass `$user` to `continue()`. Your application must authorize who resumes a conversation before passing decisions to the agent. The SDK's database store offers `conversationBelongsTo($conversationId, $participantType, $participantId)` through `Laravel\Ai\Contracts\VerifiesConversationOwnership` as a starting point. A `Decision::edit()` runs the arguments the approver supplied without asking for a new approval, so only offer it to people allowed to choose any script and arguments.
+
 ## Server requirements
 
 | Component | Needed for |

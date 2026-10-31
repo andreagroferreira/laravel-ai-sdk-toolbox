@@ -145,7 +145,7 @@ final class SupportAgent implements Agent, Conversational, HasMiddleware, HasToo
 
     public function middleware(): array
     {
-        return $this->withSkillMiddleware([new LogPrompts]);
+        return $this->withSkillMiddleware([new LogGenerationSteps]);
     }
 }
 ```
